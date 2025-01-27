@@ -1,0 +1,55 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Output of the Go compiler
+*.o
+*.a
+
+# Temporary files
+*.tmp
+
+# Dependency directories
+vendor/
+Godeps/
+
+# Go workspace file
+go.work
+
+# IDE/editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+.env
+
+# Go modules
+/go.sum
+
+# Binary output
+/bin/
+/build/
+
+# Test binary, coverage data, and results
+*.test
+*.out
+*.cover
+
+# Profiling data
+*.prof
+
+# Local environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
