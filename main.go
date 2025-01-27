@@ -44,7 +44,6 @@ func startNotLoggedIn() {
 	switch input {
 		case "1":
 			services.RegisterUser()
-			break
 		case "2":
 			result := services.LoginUser()
 			if !result {
@@ -56,6 +55,8 @@ func startNotLoggedIn() {
 		case "3":
 			println("Goodbye!")
 			os.Exit(0)
+		default:
+			welcome()
 	}
 		
 }
@@ -64,19 +65,23 @@ func userMenu() {
 	clearScreen()
 	println("----------------Todo App----------------")
 	fmt.Printf("Logged in as: %s\n", services.CurrentUser.Username)
-	fmt.Println("1. List todos")
-	fmt.Println("2. Create todo")
-	fmt.Println("3. Toggle todo")
-	fmt.Println("4. Delete todo")
-	fmt.Println("5. Logout")
-	fmt.Println("6. Exit")
+	services.GetTodos()
+	fmt.Println("1. Create todo")
+	fmt.Println("2. Toggle todo")
+	fmt.Println("3. Delete todo")
+	fmt.Println("4. Logout")
+	fmt.Println("5. Exit")
 
 	input := readInput("Choose Option and Press enter to continue :-> ")
 
 	switch input {
-		case "6":
+		case "1":
+			services.AddTodo()
+		case "5":
 			println("Goodbye!")
 			os.Exit(0)
+		default:
+			welcome()
 	}
 }
 
