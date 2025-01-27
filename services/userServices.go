@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 	"todo-app/config"
 	"todo-app/models"
 
@@ -37,11 +38,13 @@ func RegisterUser() {
 	result := db.Create(&user)
 
 	if result.Error != nil {
-		fmt.Println("Failed to register user")
+		fmt.Println("Failed to register user❌")
+		time.Sleep(3 * time.Second)
 		return
 	}
 
-	fmt.Println("User registered successfully")
+	fmt.Println("User registered successfully✅")
+	time.Sleep(3 * time.Second)
 }
 
 func LoginUser() bool {
@@ -52,18 +55,22 @@ func LoginUser() bool {
 
 	isUser := db.Where("username = ?", username).First(&user)
 	if isUser.Error != nil {
-		fmt.Println("User not found")
+		fmt.Println("❌User not found❌")
+		//pause for 3 seconds
+		time.Sleep(3 * time.Second)
 		return false
 	}
 
 	isPassCorrect := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password))
 	if isPassCorrect != nil {	
-		fmt.Println("Invalid password")
+		fmt.Println("❌Invalid password❌")
+		time.Sleep(3 * time.Second)
 		return false
 	}
 
 	CurrentUser = &user
 
-	fmt.Println("Login successful")
+	fmt.Println("✅Login successful✅")
+	time.Sleep(3 * time.Second)
 	return true	
 }
