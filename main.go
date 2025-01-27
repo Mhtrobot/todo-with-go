@@ -77,6 +77,12 @@ func userMenu() {
 	switch input {
 		case "1":
 			services.AddTodo()
+		case "2":
+			services.ToggleTodo()
+		case "3":
+			services.DeleteTodo()
+		case "4":
+			services.CurrentUser = nil
 		case "5":
 			println("Goodbye!")
 			os.Exit(0)
