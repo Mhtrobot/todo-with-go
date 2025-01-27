@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 	"todo-app/config"
 	"todo-app/services"
 )
@@ -21,8 +22,57 @@ func clearScreen() {
 	print("\033[H\033[2J")
 }
 
+func colorCyan(text string) string {
+    return "\033[36m" + text + "\033[0m"
+}
+
+func colorGreen(text string) string {
+    return "\033[32m" + text + "\033[0m"
+}
+
+func colorRed(text string) string {
+    return "\033[31m" + text + "\033[0m"
+}
+
+func colorYellow(text string) string {
+    return "\033[33m" + text + "\033[0m"
+}
+
+func colorBlue(text string) string {
+    return "\033[34m" + text + "\033[0m"
+}
+
+func printSeparator() {
+    fmt.Println(colorBlue("════════════════════════════════════════"))
+}
+
+func printLoadingAnimation(duration time.Duration, message string) {
+    frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+    end := time.Now().Add(duration)
+    
+    for time.Now().Before(end) {
+        for _, frame := range frames {
+            fmt.Printf("\r%s %s", frame, message)
+            time.Sleep(100 * time.Millisecond)
+        }
+    }
+    fmt.Println()
+}
+
+func printBanner() {
+    fmt.Println(colorCyan(`
+   ____          _            
+  / ___|___   __| | ___  _ __ 
+ | |   / _ \ / _  |/ _ \| '__|
+ | |__| (_) | (_| | (_) | |   
+  \____\___/ \__,_|\___/|_|   
+                              
+        `))
+}
+
 func welcome() {
 	clearScreen()
+	printBanner()
 	for {
 		if services.CurrentUser == nil {
 			startNotLoggedIn()
@@ -34,69 +84,79 @@ func welcome() {
 
 func startNotLoggedIn() {
 	clearScreen()
-	println("----------------Todo App----------------")
+	printBanner()
+	fmt.Println(colorGreen("--------- Main Menu ---------"))
 	println("1. Register")
 	println("2. Login")
 	println("3. Exit")
 
-	input := readInput("Choose Option and Press enter to continue :-> ")
+	input := readInput(colorCyan("Choose an option -> "))
 
 	switch input {
 		case "1":
 			services.RegisterUser()
+			time.Sleep(time.Second)
 		case "2":
 			result := services.LoginUser()
-			if !result {
-				welcome()
-				return
-			} else {
+			time.Sleep(time.Second)
+			if result {
 				userMenu()
+				return
 			}
 		case "3":
-			println("Goodbye!")
+			fmt.Println(colorGreen("Goodbye!"))
 			os.Exit(0)
 		default:
-			welcome()
+			fmt.Println(colorRed("Invalid choice!"))
+			time.Sleep(time.Second)
 	}
 		
 }
 
 func userMenu() {
 	clearScreen()
-	println("----------------Todo App----------------")
-	fmt.Printf("Logged in as: %s\n", services.CurrentUser.Username)
-	services.GetTodos()
-	fmt.Println("1. Create todo")
-	fmt.Println("2. Toggle todo")
-	fmt.Println("3. Delete todo")
-	fmt.Println("4. Logout")
-	fmt.Println("5. Exit")
+	printBanner()
+	printSeparator()
+    fmt.Printf("👤 Logged in as: %s\n", colorGreen(services.CurrentUser.Username))
+	printSeparator()
 
-	input := readInput("Choose Option and Press enter to continue :-> ")
+    services.GetTodos()
+	printSeparator()
 
-	switch input {
-		case "1":
-			services.AddTodo()
-		case "2":
-			services.ToggleTodo()
-		case "3":
-			services.DeleteTodo()
-		case "4":
-			services.CurrentUser = nil
-		case "5":
-			println("Goodbye!")
-			os.Exit(0)
-		default:
-			welcome()
-	}
+	fmt.Printf("%s %s\n", colorYellow("➊"), "Create todo")
+    fmt.Printf("%s %s\n", colorYellow("➋"), "Toggle todo")
+    fmt.Printf("%s %s\n", colorYellow("➌"), "Delete todo")
+    fmt.Printf("%s %s\n", colorYellow("➍"), "Logout")
+    fmt.Printf("%s %s\n", colorYellow("➎"), "Exit")
+    printSeparator()
+
+    input := readInput(colorCyan("Choose an option ▶ "))
+   
+    switch input {
+    case "1":
+        services.AddTodo()
+    case "2":
+        services.ToggleTodo()
+    case "3":
+        services.DeleteTodo()
+    case "4":
+        services.CurrentUser = nil
+    case "5":
+        fmt.Println(colorGreen("Goodbye!"))
+        os.Exit(0)
+    default:
+        fmt.Println(colorRed("Invalid choice!"))
+        time.Sleep(time.Second)
+    }
 }
 
 func main() {
 	db := config.InitDB()
 
 	if db == nil {
-		println("Failed to connect to database")
-	}
+        fmt.Println(colorRed("Failed to connect to database"))
+        return
+    }
 
 	welcome()
 }

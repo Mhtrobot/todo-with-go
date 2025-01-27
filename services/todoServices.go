@@ -6,46 +6,93 @@ import (
 	"todo-app/models"
 )
 
+func printSeparator() {
+    fmt.Println(colorBlue("════════════════════════════════════════"))
+}
+
+func printLoadingAnimation(duration time.Duration, message string) {
+    frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+    end := time.Now().Add(duration)
+    
+    for time.Now().Before(end) {
+        for _, frame := range frames {
+            fmt.Printf("\r%s %s", frame, message)
+            time.Sleep(100 * time.Millisecond)
+        }
+    }
+    fmt.Println()
+}
+
+func colorGreen(text string) string {
+    return "\033[32m" + text + "\033[0m"
+}
+
+func colorRed(text string) string {
+    return "\033[31m" + text + "\033[0m"
+}
+
+func colorYellow(text string) string {
+    return "\033[33m" + text + "\033[0m"
+}
+
+func colorBlue(text string) string {
+    return "\033[34m" + text + "\033[0m"
+}
+
 func AddTodo() {
-	title := readInput("Enter title: ")
-	description := readInput("Enter description:\n")
+    fmt.Println(colorBlue("\n📝 Create New Todo"))
+    printSeparator()
+    
+    title := readInput("Title: ")
+    description := readInput("Description: ")
 
-	todo := models.Todo{
-		Title: title,
-		Description: description,
-		UserID: CurrentUser.ID,
-	}
+    printLoadingAnimation(1*time.Second, "Creating todo...")
 
-	result := db.Create(&todo)
-	if result.Error != nil {
-		fmt.Println("Failed to create todo❌")
-		time.Sleep(3 * time.Second)
-		return
-	}
+    todo := models.Todo{
+        Title: title,
+        Description: description,
+        UserID: CurrentUser.ID,
+    }
 
-	fmt.Println("Todo created successfully!✅")
-	time.Sleep(3 * time.Second)
+    result := db.Create(&todo)
+    if result.Error != nil {
+        fmt.Println(colorRed("\n❌ Failed to create todo"))
+        time.Sleep(2 * time.Second)
+        return
+    }
+
+    fmt.Println(colorGreen("\n✅ Todo created successfully!"))
+    time.Sleep(2 * time.Second)
 }
 
 func GetTodos() {
-	fmt.Println("----------------Todos----------------")
-	var todos []models.Todo
+    fmt.Printf("\n%s\n", colorBlue("📋 Your Todos"))
+    var todos []models.Todo
 
-	db.Where("user_id = ?", CurrentUser.ID).Find(&todos)
-	if len(todos) == 0 {
-		fmt.Println("No todos found")
-		return
-	}
+    db.Where("user_id = ?", CurrentUser.ID).Find(&todos)
+    if len(todos) == 0 {
+        fmt.Printf("\n%s\n", colorYellow("📝 No todos found - Create your first todo!"))
+        return
+    }
 
-
-	for _, todo := range todos {
-		status := "❌"
-		if todo.Completed {
-			status = "✅"
-		}
-
-		fmt.Printf("[%d] %s %-25s - %s\n", todo.ID, status, todo.Title, todo.Description)
-	}
+    for _, todo := range todos {
+        status := colorRed("✘")
+        if todo.Completed {
+            status = colorGreen("✔")
+        }
+        
+        title := todo.Title
+        if todo.Completed {
+            title = colorGreen(title)
+        }
+        
+        fmt.Printf("%s [%d] %-25s %s\n", 
+            status,
+            todo.ID,
+            title,
+            colorBlue("• "+todo.Description))
+    }
+    fmt.Println()
 }
 
 func ToggleTodo() {
